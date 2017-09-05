@@ -8,8 +8,10 @@
 local lives = 3
 local score = 0
 local died = false
-
-
+local backGroup = display.newGroup()
+local mainGroup = display.newGroup()
+local uiGroup = display.newGroup()
+alienshipTable = {}
 local ship
 local gameLoopTimer
 local livesText
@@ -20,10 +22,10 @@ local physics = require("physics")
 physics.start()
 physics.setGravity ( 0, 0 )
 
-local background = display.newImageRect("background/backgroundnova.png", 1080, 1920)
+local background = display.newImageRect(backGroup,"background/backgroundnova.png", 1080, 1920)
 background.x = display.contentCenterX
 background.y = display.contentCenterY
-ship = display.newImageRect( "1.png", 80, 80)
+ship = display.newImageRect( mainGroup,"1.png", 60, 60)
 ship.x=display.contentCenterX
 ship.y=display.contentHeight - 100
 physics.addBody( ship, { radius=30, isSensor=true } )
@@ -31,10 +33,18 @@ ship.myName = "ship"
 
 -- Criando naves inimigas
 local function createalien()
- newalienship = display.newImageRect("Alien Ships/Alien-Bomber.png", 80, 80)
- table.insert( alienshipTable, newalienship)
- physics.addBody(newalienship, "dynamic", { radius=40, bounce=0.8 } )
- newalienship.myName = "valkards"
+ 	local newalienship = display.newImageRect( mainGroup,"Alien/Alien-Bomber", 128,128 )
+ 	table.insert( alienshipTable, newalienship )
+ 	physics.addBody( newalienship, "dynamic", {radius=40, bounce=0.8 } )
+ 	newalienship.myName = "valkarians"
+
+ 	local whereFrom = math.random (1)
+
+ 	if ( whereFrom == 1 ) then
+ 		newalienship.x = math.random( display.contentWidth )
+ 		newalienship.y = -60
+ 		newalienship:setLinearVelocity( math.random ( 10, 20), math.random ( 10, 20) )
+ 	end	
 end
 
 --local whereFrom = math.random(1)
@@ -65,14 +75,14 @@ math.randomseed( os.time() )
 --local sheetOptions =
 
 --local objectSheet = graphics.newImageSheet( "1.png", sheetOptions)
---livesText = display.newText( uiGroup, "Lives:" .. lives, 200, 80, native.systemFont, 36)
---scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFonte, 36)
+livesText = display.newText( uiGroup, "Lives:" .. lives, 260, 40, native.systemFont, 20)
+scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFonte, 36)
 local function  updateText()
 	livesText.text = "Lives: " .. lives
 	scoreText.text = "Score: " .. score
 end
 local function fireLaser()
-	local newlaser = display.newImageRect("laser3.png", 1000, 1000)
+	local newlaser = display.newImageRect(mainGroup,"laser3.png", 50, 50)
 	physics.addBody( newlaser,"dynamic", { isSensor=true } )
 	newlaser.isBullet = true
 	newlaser.myName = "laser"
@@ -83,6 +93,7 @@ local function fireLaser()
 	newlaser:toBack()
 
 	transition.to( newlaser, { y=-40, time=500, } )
+		onComplete = function() display.remove(newlaser) end
 end
 
 ship:addEventListener( "tap", fireLaser )
@@ -107,3 +118,19 @@ local function dragShip( event )
 end
 
 ship:addEventListener( "touch", dragShip )
+
+local function gameLoop()
+	createalien()
+
+	for i = #alienshipTable, 1, -1 do
+		local thisalien = alienshipTable[i]
+
+		if (thisalien.y < -100 or
+			thisalien.y > display.contentHeight + 100)
+		then
+		display.remove( thisalien )
+		table.remove( alienshipTable, i)
+		end
+	end
+end
+gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0)

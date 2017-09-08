@@ -33,48 +33,30 @@ ship.myName = "ship"
 
 -- Criando naves inimigas
 local function createalien()
- 	local newalienship = display.newImageRect( mainGroup,"Alien/Alien-Bomber", 128,128 )
- 	table.insert( alienshipTable, newalienship )
+ 	local newalienship = display.newImageRect( mainGroup,"Alien1.png", 60,60 )
+ 	table.insert(alienshipTable, newalienship)
  	physics.addBody( newalienship, "dynamic", {radius=40, bounce=0.8 } )
  	newalienship.myName = "valkarians"
 
  	local whereFrom = math.random (1)
-
- 	if ( whereFrom == 1 ) then
- 		newalienship.x = math.random( display.contentWidth )
- 		newalienship.y = -60
- 		newalienship:setLinearVelocity( math.random ( 10, 20), math.random ( 10, 20) )
- 	end	
+ 		if ( whereFrom == 1 ) then
+ 		newalienship.x = math.random(500)
+ 		--newalienship.y = -60
+ 		newalienship:setLinearVelocity( 0,10)
+ 		elseif ( whereFrom == 2) then
+ 			newalienship = 80
+ 		newalienship:setLinearVelocity (0, 10)
+ 		elseif ( whereFrom == 3) then 
+ 			newalienship.x = 100
+ 		newalienship:setLinearVelocity(0,10)
+ 	end
 end
-
---local whereFrom = math.random(1)
---	if (whereFrom == 1) then
---		newalienship.x = -60
---		newalienship.y = math.random(500)
---	newalienship:setLinearVelocity( math.random( 40,120 ), math.random( 20,60 ) )
---  elseif ( whereFrom == 2 ) then
---        -- From the top
---       newalienship.x = math.random( display.contentWidth )
---        newalienship.y = -60
---        newalienship:setLinearVelocity( math.random( -40,40 ), math.random( 40,120 ) )
---    elseif ( whereFrom == 3 ) then
---       -- From the right
---        newalienship.x = display.contentWidth + 60
---        newalienship.y = math.random( 500 )
---       newalienship:setLinearVelocity( math.random( -120,-40 ), math.random( 20,60 ) )
---	end	
---end
-
-
-
---Até aqui.
 
 -- Seed the random number generator
 math.randomseed( os.time() )
 
 --local sheetOptions =
 
---local objectSheet = graphics.newImageSheet( "1.png", sheetOptions)
 livesText = display.newText( uiGroup, "Lives:" .. lives, 260, 40, native.systemFont, 20)
 scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFonte, 36)
 local function  updateText()
@@ -123,7 +105,7 @@ local function gameLoop()
 	createalien()
 
 	for i = #alienshipTable, 1, -1 do
-		local thisalien = alienshipTable[i]
+	local thisalien = alienshipTable[i]
 
 		if (thisalien.y < -100 or
 			thisalien.y > display.contentHeight + 100)
@@ -134,3 +116,37 @@ local function gameLoop()
 	end
 end
 gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0)
+
+local function restoreShip()
+	
+	ship.isBodyActive = false
+	ship.x = display.contentCenterX
+	ship.y = display.contentHeight - 100
+
+	-- Fade in the ship
+	transition.to( ship, { alpha=1, time=4000,	
+		onComplete = function()
+			ship.isBodyActive = true
+			died = false
+		end
+
+		} )
+
+end
+
+local function onCollision (event)
+
+	if (event.phase == "began" ) then
+
+		local obj1 = event.object1
+		local obj2 = event.object2
+
+		if (( obj1.myName == "laser" and obj2.myName == "valkarians") or
+			(obj1.myName == "valkarians" and obj2.myName == "laser") )
+		then
+
+			display.remove( obj1 )
+			display.remove( obj2 )
+		end
+	end
+end

@@ -16,6 +16,10 @@ local ship
 local gameLoopTimer
 local livesText
 local scoreText
+local fireSound
+
+
+
 -- Display groups
 
 local physics = require("physics")
@@ -58,7 +62,7 @@ math.randomseed( os.time() )
 --local sheetOptions =
 
 livesText = display.newText( uiGroup, "Lives:" .. lives, 260, 40, native.systemFont, 20)
-scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFonte, 36)
+scoreText = display.newText( uiGroup, "Score:" .. score, 80, 40, native.systemFont, 20)
 local function  updateText()
 	livesText.text = "Lives: " .. lives
 	scoreText.text = "Score: " .. score
@@ -68,6 +72,7 @@ local function fireLaser()
 	physics.addBody( newlaser,"dynamic", { isSensor=true } )
 	newlaser.isBullet = true
 	newlaser.myName = "laser"
+	audio.play( fireSound )
 
 	
 	newlaser.x = ship.x
@@ -75,7 +80,7 @@ local function fireLaser()
 	newlaser:toBack()
 
 	transition.to( newlaser, { y=-40, time=500, } )
-		onComplete = function() display.remove(newlaser) end
+		onComplete = function() display.remove(newlaser) end	
 end
 
 ship:addEventListener( "tap", fireLaser )
@@ -147,6 +152,43 @@ local function onCollision (event)
 
 			display.remove( obj1 )
 			display.remove( obj2 )
+			for i = #alienshipTable, 1, -1 do
+				if ( alienshipTable[i] == obj1 or alienshipTable[i] == obj2 ) then
+					table.remove ( alienshipTable, i)
+					break
+				end
+			end
+			
+			--Score
+			score = score + 100
+			scoreText.text= "Score: " .. score
+
+			elseif (( obj1.myName == "ship" and obj2.myName == "valkarians" ) or
+				(obj1.myName =="valkarians" and obj2.myName == "ship" ) )
+			then
+			if ( died == false ) then
+				died = true
+
+				--update lives
+				lives = lives - 1
+				livesText.text = "Lives: " .. lives
+
+				if 	( lives == 0) then
+					display.remove(ship)
+				else
+					ship.alpha = 0
+					timer.performWithDelay ( 1000, restoreShip)
+				end
+			end
 		end
 	end
 end
+
+--function scene:create( event )
+--	local sceneGroup = self.view
+--
+--
+--	physics.pause()
+--fireSound = audio.loadSound("laser3")
+--end
+Runtime:addEventListener( "collision", onCollision)

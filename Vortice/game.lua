@@ -39,16 +39,16 @@ local function createalien()
  	contador = 0
  	posicao = math.random(200)
 
- 	local whereFrom = math.random( 10 )
+ 	local whereFrom = math.random( 20 )
  		if ( whereFrom == 1 ) then
  			newalienship.x = math.random (display.contentWidth)
  		newalienship:setLinearVelocity( 0,30)
  		elseif ( whereFrom == 2) then
- 			newalienship.x = 180
+ 			newalienship.x = math.random (display.contentWidth)
  		newalienship:setLinearVelocity (0, 30)
  		elseif (whereFrom == 3 ) then
- 	--		newalienship.x = 200
- 	--		newalienship:setLinearVelocity (0, 30)
+ 			newalienship.x = math.random (display.contentWidth)
+ 			newalienship:setLinearVelocity (0, 30)
  	end
  
 end
@@ -195,7 +195,7 @@ function scene:create( event )
 	uiGroup = display.newGroup()
 	sceneGroup:insert( uiGroup )
 
-	local background = display.newImageRect( backGroup, "background.jpg", 800, 1400)
+	local background = display.newImageRect( backGroup, "background/backgroundnova.png", 800, 1400)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 

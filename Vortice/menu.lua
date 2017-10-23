@@ -9,11 +9,11 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local function gotoGame()
-    composer.gotoScene( "game" )
+    composer.gotoScene( "game", {time=800, effect="crossFade" } )
 end
  
 local function gotoHighScores()
-    composer.gotoScene( "highscores" )
+    composer.gotoScene( "highscores", {time=800, effect="crossFade" } )
 end
 
 
@@ -26,21 +26,22 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-	local background = display.newImageRect( sceneGroup, "menu/earth.jpg", 800, 1400)	
+	local background = display.newImageRect( sceneGroup, "menu/earth.jpg", display.contentWidth, display.contentHeight)	
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	local title = display.newImageRect(sceneGroup, "menu/title.jpg", 500 , 80)
-	title.x = display.contentCenterX
-	title.y = 200
+	local title = display.newText( sceneGroup, "VORTICE", display.contentCenterX, 80, "menu/a", 30)
+ 	
+ 	local playButton = display.newText( sceneGroup, "PLAY" , display.contentCenterX, 180, "menu/a", 20)
 
-	local playButton = display.newText(sceneGroup, "Play", display.contentCenterX, 700, native.systemFont, 44 )
-	playButton:setFillColor( 0.82, 0.86, 1 )
-	local playButton = display.newText(sceneGroup, "High Scores", display.contentCenterX, 810, native.systemFont, 44)
-	highscores:setFillColor( 0.75, 0.78, 1 )
+    
+    local highScoresButton = display.newText( sceneGroup, "HIGH SCORE", display.contentCenterX, 269, "menu/a", 20
+    )
+	
+	
 
 	playButton:addEventListener("tap", gotoGame)
-	playButton:addEventListener("tap", gotoHighScores)
+	highScoresButton:addEventListener("tap", gotoHighScores)
 end
 
 
@@ -55,7 +56,7 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
+	
 	end
 end
 
@@ -68,9 +69,10 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
+		
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		
 
 	end
 end

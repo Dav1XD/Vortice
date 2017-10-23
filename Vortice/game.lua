@@ -15,9 +15,9 @@ physics.setGravity( 0, 0 )
 local lives = 3
 local score = 0
 local died = false
-local backGroup = display.newGroup()
-local mainGroup = display.newGroup()
-local uiGroup = display.newGroup()
+local backGroup 
+local mainGroup 
+local uiGroup 
 local alienshipTable = {}
 local ship
 local gameLoopTimer
@@ -30,6 +30,7 @@ local function  updateText()
 	scoreText.text = "Score: " .. score
 end
 
+
 local function createalien()
  	local newalienship = display.newImageRect( mainGroup,"Alien1.png", 50,50 )
  	table.insert(alienshipTable, newalienship)
@@ -40,7 +41,6 @@ local function createalien()
 
  	local whereFrom = math.random( 10 )
  		if ( whereFrom == 1 ) then
- 			--if posicao >= 50 and posicao <= 200 then
  			newalienship.x = math.random (display.contentWidth)
  		newalienship:setLinearVelocity( 0,30)
  		elseif ( whereFrom == 2) then
@@ -69,7 +69,7 @@ local function fireLaser()
 		onComplete = function() display.remove(newlaser) end	
 end
 
-ship:addEventListener( "tap", fireLaser )
+
 
 local function dragShip( event )
 	local ship = event.target
@@ -90,7 +90,7 @@ local function dragShip( event )
 	return true
 end
 
-ship:addEventListener( "touch", dragShip )
+
 
 local function gameLoop()
 	createalien()
@@ -106,7 +106,7 @@ local function gameLoop()
 		end
 	end
 end
-gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0)
+
 
 local function restoreShip()
 	
@@ -124,6 +124,10 @@ local function restoreShip()
 		} )
 
 end
+local function endGame()
+	composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+end	
+
 
 local function onCollision (event)
 
@@ -159,8 +163,9 @@ local function onCollision (event)
 				lives = lives - 1
 				livesText.text = "Lives: " .. lives
 
-				if 	( lives == 0) then
+				if 	( lives == 0 ) then
 					display.remove(ship)
+					timer.performWithDelay( 2000, endGame )
 				else
 					ship.alpha = 0
 					timer.performWithDelay ( 1000, restoreShip)
@@ -185,14 +190,16 @@ function scene:create( event )
 	sceneGroup:insert( backGroup )
 
 	mainGroup = display.newGroup()
-	sceneGroup:insert(mainGroup)
+	sceneGroup:insert( mainGroup )
 
 	uiGroup = display.newGroup()
-	sceneGroup:insert(uiGroup)
+	sceneGroup:insert( uiGroup )
 
-	local background = display.newImageRect( backGroup, "menu/earth.jpg", 800, 1400)
+	local background = display.newImageRect( backGroup, "background.jpg", 800, 1400)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
+
+
 
 	ship = display.newImageRect( mainGroup,"1.png", 60, 60)
 	ship.x=display.contentCenterX
@@ -233,11 +240,12 @@ function scene:hide( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		-- Code here runs when the scene is on screen (but is about to go off screen)
+		timer.cancel( gameLoopTimer)
 
 	elseif ( phase == "did" ) then
-		-- Code here runs immediately after the scene goes entirely off screen
-
+		Runtime:removeEventListener( "collision", onCollision)
+		physics.pause()
+		composer.removeScene( "game")
 	end
 end
 
